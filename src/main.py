@@ -1,20 +1,31 @@
-from src.power import power_function
-from src.constants import SAMPLE_CONSTANT
+import argparse
+from src.calculator import calculate, tokenize
+
+def calc_cmd(args):
+    tokens = tokenize(args.expression)
+    result = calculate(tokens)
+    print(result)
+
+def convert_cmd(args):
+    pass
 
 
 def main() -> None:
-    """
-    Обязательнная составляющая программ, которые сдаются. Является точкой входа в приложение
-    :return: Данная функция ничего не возвращает
-    """
+    parser = argparse.ArgumentParser(description="Калькулятор и конвертер величин")
+    subparsers = parser.add_subparsers(dest="command", required = True, help="Доступные команды")
 
-    target, degree = map(int, input("Введите два числа разделенные пробелом: ").split(" "))
+    calc_parser = subparsers.add_parser("calc", help="Вычислить выражение")
+    calc_parser.add_argument("expression", help="Выражение")
+    calc_parser.set_defaults(func=calc_cmd)
 
-    result = power_function(target=target, power=degree)
+    convert_parser = subparsers.add_parser("convert", help="Конвертировать величину")
+    convert_parser.add_argument("value", help="Величина")
+    convert_parser.add_argument("--from", required = True, help="Изначальные единицы измерения")
+    convert_parser.add_argument("--to", required = True, help="Конечные единицы измерения")
+    convert_parser.set_defaults(func=convert_cmd)
 
-    print(result)
-
-    print(SAMPLE_CONSTANT)
+    args = parser.parse_args()
+    args.func(args)
 
 if __name__ == "__main__":
     main()
