@@ -1,10 +1,22 @@
 import argparse
-from src.calculator import calculate, tokenize
+import sys
+from src.calculator import calculate, validation, tokenize
 
 def calc_cmd(args):
-    tokens = tokenize(args.expression)
-    result = calculate(tokens)
-    print(result)
+    try:
+        tokens = tokenize(args.expression)
+        validated_tokens = validation(tokens)
+        result = calculate(validated_tokens)
+        print(result)
+
+    except ValueError as e:
+       print(f"Ошибка: {e}")
+       sys.exit(2)
+
+    except ZeroDivisionError as e:
+       print(f"Ошибка: {e}")
+       sys.exit(2)
+
 
 def convert_cmd(args):
     pass
