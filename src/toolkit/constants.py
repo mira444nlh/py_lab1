@@ -1,0 +1,1 @@
+ABSOLUTE_ZERO_CELCIUS: float = -273.15

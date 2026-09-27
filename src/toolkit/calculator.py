@@ -12,7 +12,7 @@ class Stack:
         return self.items[-1]
 
     def is_empty(self):
-        return (self.items == [])
+        return self.items == []
 
 
 def tokenize(expr: str):
@@ -24,21 +24,22 @@ def tokenize(expr: str):
         if expr[i].isspace():
             i += 1
 
-        elif expr[i] in '+-*/%()':
-            tokens.append(('OPERATOR', expr[i]))
+        elif expr[i] in "+-*/%()":
+            tokens.append(("OPERATOR", expr[i]))
             i += 1
 
         elif expr[i].isdigit():
             start = i
-            while i < expr_len and (expr[i].isdigit() or expr[i] == '.'):
+            while i < expr_len and (expr[i].isdigit() or expr[i] == "."):
                 i += 1
 
-            tokens.append(('NUMBER', expr[start:i]))
+            tokens.append(("NUMBER", expr[start:i]))
 
         else:
-            raise ValueError(f"Неизвестный символ: {expr[i]}")
+            raise ValueError(f"Недопустимый символ: {expr[i]}")
 
     return tokens
+
 
 def validation(tokens):
     if not tokens:
@@ -50,41 +51,45 @@ def validation(tokens):
     bracket_count = 0
 
     for i in range(len(tokens)):
-        if tokens[i][1] == '(':
+        if tokens[i][1] == "(":
             bracket_count += 1
-            new_tokens.append(('OPERATOR', tokens[i][1]))
+            new_tokens.append(("OPERATOR", tokens[i][1]))
 
-        elif tokens[i][1] == ')':
+        elif tokens[i][1] == ")":
             if bracket_count == 0:
                 raise ValueError("Пропущена открывающая скобка")
 
             expect_operand = False
             bracket_count -= 1
-            new_tokens.append(('OPERATOR', tokens[i][1]))
+            new_tokens.append(("OPERATOR", tokens[i][1]))
 
-        elif tokens[i][0] == 'NUMBER':
-            if not(expect_operand):
+        elif tokens[i][0] == "NUMBER":
+            if not (expect_operand):
                 raise ValueError("Пропущенный оператор")
 
             expect_operand = False
             num = tokens[i][1]
             if negative_number:
-                num = '-' + num
+                num = "-" + num
                 negative_number = False
-            new_tokens.append(('NUMBER', num))
+            new_tokens.append(("NUMBER", num))
 
         else:
             if expect_operand:
-                if tokens[i][1] == '+':
+                if tokens[i][1] == "+":
                     pass
-                elif tokens[i][1] == '-':
+                elif tokens[i][1] == "-":
                     negative_number = True
-                elif len(new_tokens) != 0 and (new_tokens[-1][1] == tokens[i][1] == '/'):
+                elif len(new_tokens) != 0 and (
+                    new_tokens[-1][1] == tokens[i][1] == "/"
+                ):
                     new_tokens.pop()
-                    new_tokens.append(('OPERATOR', '//'))
-                elif len(new_tokens) != 0 and (new_tokens[-1][1] == tokens[i][1] == '*'):
+                    new_tokens.append(("OPERATOR", "//"))
+                elif len(new_tokens) != 0 and (
+                    new_tokens[-1][1] == tokens[i][1] == "*"
+                ):
                     new_tokens.pop()
-                    new_tokens.append(('OPERATOR', '**'))
+                    new_tokens.append(("OPERATOR", "**"))
                 elif len(new_tokens) != 0:
                     raise ValueError("Два бинарных оператора подряд")
                 else:
@@ -92,58 +97,61 @@ def validation(tokens):
 
             else:
                 expect_operand = True
-                new_tokens.append(('OPERATOR', tokens[i][1]))
+                new_tokens.append(("OPERATOR", tokens[i][1]))
 
     if bracket_count != 0:
         raise ValueError("Неправильный формат скобок")
-
     if expect_operand:
         raise ValueError("Пропущенный операнд")
 
     return new_tokens
 
+
 def higher_priority(op1, op2):
-    precedence = {'+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '//': 2, '**': 3}
+    precedence = {"+": 1, "-": 1, "*": 2, "/": 2, "%": 2, "//": 2, "**": 3}
     return precedence[op1] >= precedence[op2]
+
 
 def compute(num1, num2, operator):
     match operator:
-        case '+':
+        case "+":
             res = num2 + num1
 
-        case '-':
+        case "-":
             res = num2 - num1
 
-        case '*':
+        case "*":
             res = num2 * num1
 
-        case '/':
+        case "/":
             if num1 == 0:
                 raise ZeroDivisionError("Деление на ноль")
             res = num2 / num1
 
-        case '%':
+        case "%":
             if num1 == 0:
                 raise ZeroDivisionError("Деление на ноль")
             res = num2 % num1
 
-        case '**':
-            res = num2 ** num1
+        case "**":
+            res = num2**num1
 
-        case '//':
+        case "//":
             if num1 == 0:
                 raise ZeroDivisionError("Деление на ноль")
             res = num2 // num1
 
         case _:
-            res = 0
+            raise ValueError("Неизвестный оператор")
 
     return res
+
 
 def parse_number(s):
     if isinstance(s, int | float):
         return s
-    return float(s) if '.' in s else int(s)
+    return float(s) if "." in s else int(s)
+
 
 def apply_operator(operator_stack, number_stack):
     operator = operator_stack.pop()
@@ -153,30 +161,35 @@ def apply_operator(operator_stack, number_stack):
     result = compute(num1, num2, operator)
     number_stack.push(result)
 
+
 def calculate(tokens):
     number_stack = Stack()
     operator_stack = Stack()
 
     for kind, value in tokens:
-        if kind == 'NUMBER':
+        if kind == "NUMBER":
             number_stack.push(value)
             continue
 
-        if value == '(':
+        if value == "(":
             operator_stack.push(value)
 
-        elif value == ')':
-            while operator_stack.top() != '(':
+        elif value == ")":
+            while operator_stack.top() != "(":
                 apply_operator(operator_stack, number_stack)
             operator_stack.pop()
 
         else:
-            while not(operator_stack.is_empty()) and operator_stack.top() != '(' and higher_priority(operator_stack.top(), value):
+            while (
+                not (operator_stack.is_empty())
+                and operator_stack.top() != "("
+                and higher_priority(operator_stack.top(), value)
+            ):
                 apply_operator(operator_stack, number_stack)
 
             operator_stack.push(value)
 
-    while not(operator_stack.is_empty()):
+    while not (operator_stack.is_empty()):
         apply_operator(operator_stack, number_stack)
 
     return number_stack.pop()
