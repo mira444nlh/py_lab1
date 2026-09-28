@@ -1,38 +1,35 @@
 import argparse
 import sys
 
-from .calculator import calculate, tokenize, validation
+from .calculator import evaluate
 from .converter import convert
 
 
-def calc_cmd(args):
+def calc_cmd(args) -> None:
     try:
-        tokens = tokenize(args.expression)
-        validated_tokens = validation(tokens)
-        result = calculate(validated_tokens)
-        print(result)
+        print(evaluate(args.expression))
 
     except ValueError as e:
-        print(f"Ошибка: {e}")
+        print(f"Ошибка: {e}", file=sys.stderr)
         sys.exit(2)
 
     except ZeroDivisionError as e:
-        print(f"Ошибка: {e}")
+        print(f"Ошибка: {e}", file=sys.stderr)
         sys.exit(2)
 
 
-def convert_cmd(args):
+def convert_cmd(args) -> None:
     try:
         value = float(args.value)
     except ValueError:
-        print(f"Неверное числовое значение: {args.value}")
+        print(f"Неверное числовое значение: {args.value}", file=sys.stderr)
         sys.exit(2)
 
     try:
         result = convert(value, args.from_arg.lower(), args.to_arg.lower())
         print(result)
     except ValueError as e:
-        print(f"Ошибка: {e}")
+        print(f"Ошибка: {e}", file=sys.stderr)
         sys.exit(2)
 
 

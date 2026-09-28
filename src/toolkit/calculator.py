@@ -15,7 +15,7 @@ class Stack:
         return self.items == []
 
 
-def tokenize(expr: str):
+def tokenize(expr: str) -> list[tuple[str, str]]:
     tokens = []
     expr_len = len(expr)
     i = 0
@@ -41,7 +41,7 @@ def tokenize(expr: str):
     return tokens
 
 
-def validation(tokens):
+def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
     if not tokens:
         raise ValueError("Пустое выражение")
 
@@ -79,7 +79,7 @@ def validation(tokens):
                 if tokens[i][1] == "+":
                     pass
                 elif tokens[i][1] == "-":
-                    negative_number = True
+                    negative_number = not negative_number
                 elif len(new_tokens) != 0 and (
                     new_tokens[-1][1] == tokens[i][1] == "/"
                 ):
@@ -107,12 +107,12 @@ def validation(tokens):
     return new_tokens
 
 
-def higher_priority(op1, op2):
+def higher_priority(op1: str, op2: str) -> bool:
     precedence = {"+": 1, "-": 1, "*": 2, "/": 2, "%": 2, "//": 2, "**": 3}
     return precedence[op1] >= precedence[op2]
 
 
-def compute(num1, num2, operator):
+def compute(num1: float, num2: float, operator: str) -> int | float:
     match operator:
         case "+":
             res = num2 + num1
@@ -147,13 +147,13 @@ def compute(num1, num2, operator):
     return res
 
 
-def parse_number(s):
+def parse_number(s: str | float) -> int | float:
     if isinstance(s, int | float):
         return s
     return float(s) if "." in s else int(s)
 
 
-def apply_operator(operator_stack, number_stack):
+def apply_operator(operator_stack: Stack, number_stack: Stack) -> None:
     operator = operator_stack.pop()
     num1 = parse_number(number_stack.pop())
     num2 = parse_number(number_stack.pop())
@@ -162,7 +162,7 @@ def apply_operator(operator_stack, number_stack):
     number_stack.push(result)
 
 
-def calculate(tokens):
+def calculate(tokens: list[tuple[str, str]]) -> int | float:
     number_stack = Stack()
     operator_stack = Stack()
 
@@ -193,3 +193,9 @@ def calculate(tokens):
         apply_operator(operator_stack, number_stack)
 
     return number_stack.pop()
+
+def evaluate(expression: str) -> int | float:
+    tokens = tokenize(expression)
+    validated_tokens = validation(tokens)
+    result = parse_number(calculate(validated_tokens))
+    return result
