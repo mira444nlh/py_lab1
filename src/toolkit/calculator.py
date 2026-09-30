@@ -1,21 +1,29 @@
 class Stack:
+    """LIFO stack based on a list."""
+
     def __init__(self):
+        """Create an empty stack."""
         self.items = []
 
     def push(self, item):
+        """Put an item on top of the stack."""
         self.items.append(item)
 
     def pop(self):
+        """Remove and return the top item."""
         return self.items.pop()
 
     def top(self):
+        """Return the top item without removing it."""
         return self.items[-1]
 
     def is_empty(self):
+        """Return True if the stack has no items."""
         return self.items == []
 
 
 def tokenize(expr: str) -> list[tuple[str, str]]:
+    """Split an expression into (kind, value) tokens."""
     tokens = []
     expr_len = len(expr)
     i = 0
@@ -42,6 +50,7 @@ def tokenize(expr: str) -> list[tuple[str, str]]:
 
 
 def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    """Check token order and brackets, fold unary signs and merge '//' and '**'."""
     if not tokens:
         raise ValueError("Пустое выражение")
 
@@ -50,25 +59,25 @@ def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
     expect_operand = True
     bracket_count = 0
 
-    for i in range(len(tokens)):
-        if tokens[i][1] == "(":
+    for key, value in tokens:
+        if value == "(":
             bracket_count += 1
-            new_tokens.append(("OPERATOR", tokens[i][1]))
+            new_tokens.append(("OPERATOR", value))
 
-        elif tokens[i][1] == ")":
+        elif value == ")":
             if bracket_count == 0:
-                raise ValueError("Пропущена открывающая скобка")
+                raise ValueError("Неправильный формат скобок")
 
             expect_operand = False
             bracket_count -= 1
-            new_tokens.append(("OPERATOR", tokens[i][1]))
+            new_tokens.append(("OPERATOR", value))
 
-        elif tokens[i][0] == "NUMBER":
+        elif key == "NUMBER":
             if not (expect_operand):
                 raise ValueError("Пропущенный оператор")
 
             expect_operand = False
-            num = tokens[i][1]
+            num = value
             if negative_number:
                 num = "-" + num
                 negative_number = False
@@ -76,17 +85,17 @@ def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
 
         else:
             if expect_operand:
-                if tokens[i][1] == "+":
+                if value == "+":
                     pass
-                elif tokens[i][1] == "-":
+                elif value == "-":
                     negative_number = not negative_number
                 elif len(new_tokens) != 0 and (
-                    new_tokens[-1][1] == tokens[i][1] == "/"
+                    new_tokens[-1][1] == value == "/"
                 ):
                     new_tokens.pop()
                     new_tokens.append(("OPERATOR", "//"))
                 elif len(new_tokens) != 0 and (
-                    new_tokens[-1][1] == tokens[i][1] == "*"
+                    new_tokens[-1][1] == value == "*"
                 ):
                     new_tokens.pop()
                     new_tokens.append(("OPERATOR", "**"))
@@ -97,7 +106,7 @@ def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
 
             else:
                 expect_operand = True
-                new_tokens.append(("OPERATOR", tokens[i][1]))
+                new_tokens.append(("OPERATOR", value))
 
     if bracket_count != 0:
         raise ValueError("Неправильный формат скобок")
@@ -108,11 +117,13 @@ def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
 
 
 def higher_priority(op1: str, op2: str) -> bool:
+    """Return True if op1 has precedence greater than or equal to op2."""
     precedence = {"+": 1, "-": 1, "*": 2, "/": 2, "%": 2, "//": 2, "**": 3}
     return precedence[op1] >= precedence[op2]
 
 
 def compute(num1: float, num2: float, operator: str) -> int | float:
+    """Apply a binary operator to num2 and num1."""
     match operator:
         case "+":
             res = num2 + num1
@@ -148,12 +159,14 @@ def compute(num1: float, num2: float, operator: str) -> int | float:
 
 
 def parse_number(s: str | float) -> int | float:
+    """Convert a numeric string to int or float; return numbers unchanged."""
     if isinstance(s, int | float):
         return s
     return float(s) if "." in s else int(s)
 
 
 def apply_operator(operator_stack: Stack, number_stack: Stack) -> None:
+    """Pop one operator and two numbers, then push the computed result."""
     operator = operator_stack.pop()
     num1 = parse_number(number_stack.pop())
     num2 = parse_number(number_stack.pop())
@@ -163,6 +176,7 @@ def apply_operator(operator_stack: Stack, number_stack: Stack) -> None:
 
 
 def calculate(tokens: list[tuple[str, str]]) -> int | float:
+    """Evaluate validated tokens using two stacks."""
     number_stack = Stack()
     operator_stack = Stack()
 
@@ -194,7 +208,9 @@ def calculate(tokens: list[tuple[str, str]]) -> int | float:
 
     return number_stack.pop()
 
+
 def evaluate(expression: str) -> int | float:
+    """Tokenize, validate and calculate an arithmetic expression string."""
     tokens = tokenize(expression)
     validated_tokens = validation(tokens)
     result = parse_number(calculate(validated_tokens))

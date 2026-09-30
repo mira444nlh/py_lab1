@@ -6,6 +6,7 @@ from .converter import convert
 
 
 def calc_cmd(args) -> None:
+    """Handle the 'calc' command."""
     try:
         print(evaluate(args.expression))
 
@@ -19,6 +20,7 @@ def calc_cmd(args) -> None:
 
 
 def convert_cmd(args) -> None:
+    """Handle the 'convert' command."""
     try:
         value = float(args.value)
     except ValueError:
@@ -34,6 +36,7 @@ def convert_cmd(args) -> None:
 
 
 def main() -> None:
+    """Build the argument parser and run the selected command."""
     parser = argparse.ArgumentParser(description="Калькулятор и конвертер величин")
     subparsers = parser.add_subparsers(
         dest="command", required=True, help="Доступные команды"

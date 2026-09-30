@@ -4,12 +4,14 @@ from .constants import ABSOLUTE_ZERO_CELCIUS
 
 
 class DegreeUnit(Enum):
+    """Temperature units."""
     CELCIUS = auto()
     FAHRENHEIT = auto()
     KELVINS = auto()
 
 
 def unit_to_celcius(degree: float, unit: DegreeUnit) -> float:
+    """Convert a temperature from the given unit to Celsius."""
     match unit:
         case DegreeUnit.CELCIUS:
             return degree
@@ -20,6 +22,7 @@ def unit_to_celcius(degree: float, unit: DegreeUnit) -> float:
 
 
 def celcius_to_unit(degree: float, unit: DegreeUnit) -> float:
+    """Convert a temperature from Celsius to the given unit."""
     match unit:
         case DegreeUnit.CELCIUS:
             return degree
@@ -30,6 +33,7 @@ def celcius_to_unit(degree: float, unit: DegreeUnit) -> float:
 
 
 def convert(value: float, unit_from: str, unit_to: str) -> float:
+    """Convert a value between compatible units (length, mass or temperature)."""
     categories = {
         "mm": 1,
         "cm": 1,
@@ -64,7 +68,7 @@ def convert(value: float, unit_from: str, unit_to: str) -> float:
     if categories[unit_from] != categories[unit_to]:
         raise ValueError("Несовместимые единицы")
 
-    if categories[unit_from] in (1, 2):
+    if categories[unit_from] != 3:
         return value / length_mass_convert[unit_from] * length_mass_convert[unit_to]
 
     celcius_degree = unit_to_celcius(value, degree_units[unit_from])
