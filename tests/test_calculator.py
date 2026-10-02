@@ -1,6 +1,13 @@
 import pytest
 
 from toolkit.calculator import evaluate
+from toolkit.errors import (
+    EmptyExpressionError,
+    InvalidBracketsFormatError,
+    InvalidCharacterError,
+    MissedOperandError,
+    TwoBinaryOperatorsInRowError,
+)
 
 
 # positive tests
@@ -68,31 +75,31 @@ def test_floor_division_by_zero_raises():
         evaluate("5//0")
 
 
-def test_invalid_character_raises_value_error():
-    with pytest.raises(ValueError):
+def test_invalid_character_raises_error():
+    with pytest.raises(InvalidCharacterError):
         evaluate("2+2a")
 
 
-def test_empty_expression_raises_value_error():
-    with pytest.raises(ValueError):
+def test_empty_expression_raises_error():
+    with pytest.raises(EmptyExpressionError):
         evaluate("")
 
 
-def test_two_operators_in_a_row_raises_value_error():
-    with pytest.raises(ValueError):
+def test_two_operators_in_a_row_raises_error():
+    with pytest.raises(TwoBinaryOperatorsInRowError):
         evaluate("2*/2")
 
 
-def test_not_closed_parentheses_raises_value_error():
-    with pytest.raises(ValueError):
+def test_not_closed_brackets_raises_error():
+    with pytest.raises(InvalidBracketsFormatError):
         evaluate("(2+2")
 
 
-def test_not_opened_parentheses_raises_value_error():
-    with pytest.raises(ValueError):
+def test_not_opened_brackets_raises_error():
+    with pytest.raises(InvalidBracketsFormatError):
         evaluate("2+2)")
 
 
-def test_missing_operand_raises_value_error():
-    with pytest.raises(ValueError):
+def test_missing_operand_raises_error():
+    with pytest.raises(MissedOperandError):
         evaluate("2+")

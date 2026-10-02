@@ -1,3 +1,13 @@
+from toolkit.errors import (
+    EmptyExpressionError,
+    InvalidBracketsFormatError,
+    InvalidCharacterError,
+    MissedOperandError,
+    MissedOperatorError,
+    TwoBinaryOperatorsInRowError,
+)
+
+
 class Stack:
     """LIFO stack based on a list."""
 
@@ -44,7 +54,7 @@ def tokenize(expr: str) -> list[tuple[str, str]]:
             tokens.append(("NUMBER", expr[start:i]))
 
         else:
-            raise ValueError(f"Недопустимый символ: {expr[i]}")
+            raise InvalidCharacterError(f"Недопустимый символ: {expr[i]}")
 
     return tokens
 
@@ -52,7 +62,7 @@ def tokenize(expr: str) -> list[tuple[str, str]]:
 def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
     """Check token order and brackets, fold unary signs and merge '//' and '**'."""
     if not tokens:
-        raise ValueError("Пустое выражение")
+        raise EmptyExpressionError("Пустое выражение")
 
     new_tokens = []
     negative_number = False
@@ -66,7 +76,7 @@ def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
 
         elif value == ")":
             if bracket_count == 0:
-                raise ValueError("Неправильный формат скобок")
+                raise InvalidBracketsFormatError("Неправильный формат скобок")
 
             expect_operand = False
             bracket_count -= 1
@@ -74,7 +84,7 @@ def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
 
         elif key == "NUMBER":
             if not (expect_operand):
-                raise ValueError("Пропущенный оператор")
+                raise MissedOperatorError("Пропущенный оператор")
 
             expect_operand = False
             num = value
@@ -100,18 +110,18 @@ def validation(tokens: list[tuple[str, str]]) -> list[tuple[str, str]]:
                     new_tokens.pop()
                     new_tokens.append(("OPERATOR", "**"))
                 elif len(new_tokens) != 0:
-                    raise ValueError("Два бинарных оператора подряд")
+                    raise TwoBinaryOperatorsInRowError("Два бинарных оператора подряд")
                 else:
-                    raise ValueError("Пропущенный операнд")
+                    raise MissedOperandError("Пропущенный операнд")
 
             else:
                 expect_operand = True
                 new_tokens.append(("OPERATOR", value))
 
     if bracket_count != 0:
-        raise ValueError("Неправильный формат скобок")
+        raise InvalidBracketsFormatError("Неправильный формат скобок")
     if expect_operand:
-        raise ValueError("Пропущенный операнд")
+        raise MissedOperandError("Пропущенный операнд")
 
     return new_tokens
 
@@ -153,7 +163,7 @@ def compute(num1: float, num2: float, operator: str) -> int | float:
             res = num2 // num1
 
         case _:
-            raise ValueError("Неизвестный оператор")
+            raise InvalidCharacterError("Неизвестный оператор")
 
     return res
 

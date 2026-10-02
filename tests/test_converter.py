@@ -2,6 +2,11 @@ import pytest
 
 from toolkit.constants import ABSOLUTE_ZERO_CELCIUS
 from toolkit.converter import convert
+from toolkit.errors import (
+    DegreeLowerThanAbsoluteZeroError,
+    IncompatibleUnitsError,
+    UnknownUnitError,
+)
 
 
 # positive tests
@@ -35,21 +40,21 @@ def test_same_unit_returns_same_value():
 
 
 # negative tests
-def test_unknown_unit_from_raises_value_error():
-    with pytest.raises(ValueError):
+def test_unknown_unit_from_raises_error():
+    with pytest.raises(UnknownUnitError):
         convert(1, "xx", "m")
 
 
-def test_unknown_unit_to_raises_value_error():
-    with pytest.raises(ValueError):
+def test_unknown_unit_to_raises_error():
+    with pytest.raises(UnknownUnitError):
         convert(1, "m", "xx")
 
 
-def test_incompatible_categories_raise_value_error():
-    with pytest.raises(ValueError):
+def test_incompatible_units_raise_error():
+    with pytest.raises(IncompatibleUnitsError):
         convert(1, "m", "kg")
 
 
-def test_temperature_below_absolute_zero_raises_value_error():
-    with pytest.raises(ValueError):
+def test_temperature_below_absolute_zero_raises_error():
+    with pytest.raises(DegreeLowerThanAbsoluteZeroError):
         convert(ABSOLUTE_ZERO_CELCIUS - 1, "c", "f")

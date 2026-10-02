@@ -1,8 +1,9 @@
 import argparse
 import sys
 
-from .calculator import evaluate
-from .converter import convert
+from toolkit.calculator import evaluate
+from toolkit.converter import convert, parse_value
+from toolkit.errors import CalculatorError, ConverterError
 
 
 def calc_cmd(args) -> None:
@@ -10,7 +11,7 @@ def calc_cmd(args) -> None:
     try:
         print(evaluate(args.expression))
 
-    except ValueError as e:
+    except CalculatorError as e:
         print(f"Ошибка: {e}", file=sys.stderr)
         sys.exit(2)
 
@@ -22,15 +23,10 @@ def calc_cmd(args) -> None:
 def convert_cmd(args) -> None:
     """Handle the 'convert' command."""
     try:
-        value = float(args.value)
-    except ValueError:
-        print(f"Неверное числовое значение: {args.value}", file=sys.stderr)
-        sys.exit(2)
-
-    try:
+        value = parse_value(args.value)
         result = convert(value, args.from_arg.lower(), args.to_arg.lower())
         print(result)
-    except ValueError as e:
+    except ConverterError as e:
         print(f"Ошибка: {e}", file=sys.stderr)
         sys.exit(2)
 

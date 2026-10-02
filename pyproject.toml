@@ -8,9 +8,9 @@ dependencies = [
     "ruff>=0.16.9",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.mypy]
+mypy_path = "src"
+explicit_package_bases = true
 
 [tool.pyright]
 venvPath = "."

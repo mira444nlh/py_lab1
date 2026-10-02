@@ -1,6 +1,12 @@
 from enum import Enum, auto
 
-from .constants import ABSOLUTE_ZERO_CELCIUS
+from toolkit.constants import ABSOLUTE_ZERO_CELCIUS
+from toolkit.errors import (
+    DegreeLowerThanAbsoluteZeroError,
+    IncompatibleUnitsError,
+    InvalidValueError,
+    UnknownUnitError,
+)
 
 
 class DegreeUnit(Enum):
@@ -9,6 +15,12 @@ class DegreeUnit(Enum):
     FAHRENHEIT = auto()
     KELVINS = auto()
 
+def parse_value(value: str) -> float:
+    """Parses string value to float."""
+    try:
+        return float(value)
+    except ValueError:
+        raise InvalidValueError(f"Неверное числовое значение: {value}")
 
 def unit_to_celcius(degree: float, unit: DegreeUnit) -> float:
     """Convert a temperature from the given unit to Celsius."""
@@ -62,17 +74,17 @@ def convert(value: float, unit_from: str, unit_to: str) -> float:
     }
 
     if unit_from not in categories:
-        raise ValueError(f"Неизвестная единица: {unit_from}")
+        raise UnknownUnitError(f"Неизвестная единица: {unit_from}")
     if unit_to not in categories:
-        raise ValueError(f"Неизвестная единица: {unit_to}")
+        raise UnknownUnitError(f"Неизвестная единица: {unit_to}")
     if categories[unit_from] != categories[unit_to]:
-        raise ValueError("Несовместимые единицы")
+        raise IncompatibleUnitsError("Несовместимые единицы")
 
     if categories[unit_from] != 3:
         return value / length_mass_convert[unit_from] * length_mass_convert[unit_to]
 
     celcius_degree = unit_to_celcius(value, degree_units[unit_from])
     if celcius_degree < ABSOLUTE_ZERO_CELCIUS:
-        raise ValueError("Температура ниже абсолютного нуля")
+        raise DegreeLowerThanAbsoluteZeroError("Температура ниже абсолютного нуля")
 
     return celcius_to_unit(celcius_degree, degree_units[unit_to])

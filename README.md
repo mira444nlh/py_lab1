@@ -54,17 +54,19 @@ python -m toolkit convert --help
 ```
 toolkit/
 ├── pyproject.toml
-├── src/
-│   ├── toolkit/
-│   │   ├── __init__.py
-│   │   ├── __main__.py      # точка входа CLI
-│   │   ├── calculator.py    # вычислительное ядро калькулятора
-│   │   ├── constants.py
-│   │   └── converter.py     # вычислительное ядро конвертера
-│   └── tests/
-│       ├── test_calculator.py
-│       ├── test_converter.py
-│       └── test_cli.py
+├── src
+│   └── toolkit
+│       ├── __init__.py
+│       ├── __main__.py      # точка входа CLI
+│       ├── calculator.py    # вычислительное ядро калькулятора
+│       ├── constants.py     # константы (температура абсолютного нуля)
+│       ├── converter.py     # вычислительное ядро конвертера
+│       └── errors.py        # пользовательские ошибки
+├── tests
+│   ├── __init__.py
+│   ├── test_calculator.py
+│   ├── test_cli.py
+│   └── test_converter.py
 └── uv.lock
 ```
 
@@ -100,6 +102,10 @@ toolkit/
 
 Содержит общие константы проекта — в частности, `ABSOLUTE_ZERO_CELCIUS` (значение абсолютного нуля в градусах Цельсия), которое используют `convert()`, `unit_to_celcius()` и `celcius_to_unit()`.
 
+### `errors.py`
+
+Содержит описание пользовательских исключений. Образует единую иерархию, унаследованную от `ToolkitError`.
+
 ## Тесты
 
 Тесты лежат в `src/tests/` и разделены по модулям:
@@ -119,6 +125,7 @@ toolkit/
 | Деление на ноль                              |     2      | stderr         |
 | Неизвестная или несовместимая единица        |     2      | stderr         |
 | Неверное числовое значение (`convert`)       |     2      | stderr         |
+| Температура ниже абсолютного нуля            |     2      | stderr         |
 | Отсутствует обязательный аргумент (argparse) |     2      | stderr         |
 
 К некорректным выражениям (`calc`) относятся синтаксические ошибки следующих типов:
